@@ -1,0 +1,101 @@
+<html>
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #adadad;
+        }
+    </style>
+    <head>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+            google.charts.load('current', {'packages':['geochart']});
+            google.charts.setOnLoadCallback(getArrayFromFile);
+
+
+            function getArrayFromFile() {
+                var file = "plotted_data.json"
+                var nodeArray = new Array();
+                var rawFile = new XMLHttpRequest();
+                rawFile.open("GET", file, false);
+                rawFile.onreadystatechange = function() {
+                    if(rawFile.readyState === 4)
+                    {
+                        if(rawFile.status === 200 || rawFile.status == 0)
+                        {
+                            var allText = rawFile.responseText;
+                            var arr = JSON.parse(allText);
+                            var c_arr = [];
+
+                            for(var i = 0; i<arr.length; i++) {
+                                c_arr[i] = [arr[i][0], arr[i][1]];
+                            }
+
+                            var array_data_all = [
+                                ['Country', 'Number of session']
+                            ].concat(c_arr);
+
+                            // ADD TABLE ELEM ALL
+                            var table = document.getElementById("table");
+                            for(var i = 0; i<10; i++) {
+                                var row = table.insertRow(i+1);
+
+                                var cell1 = row.insertCell(0);
+                                var cell2 = row.insertCell(1);
+                                var cell3 = row.insertCell(2);
+
+                                cell1.innerHTML = arr[i][0];
+                                cell2.innerHTML = arr[i][1];
+                                cell3.innerHTML = arr[i][2];
+                                
+                            }
+
+                            // GEO PLOT
+                            var data = google.visualization.arrayToDataTable(array_data_all);
+
+                            var options = {
+                                colorAxis: {
+                                    colors: ['green', 'yellow', 'orange', 'red'],
+                                    values: [0, 300, 1000, 3000]
+                                }
+                            };
+                            var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+                            chart.draw(data, options);
+                        }
+                    }
+                }
+             rawFile.send(null);
+            }
+        </script>
+    </head>
+    <body>
+        <div>
+            <h1>Distribution of Country (C) collectged in certificate only for telnet session with at least 2 commands sent</h1>
+            <div id="regions_div" style="width: 1700px; height: 900px;"></div>
+            </br>
+            <div>
+                <table id="table" style="width: 800px; height: 400px;">
+                    <tr>
+                        <th>Country</th>
+                        <th>Occurence</th>
+                        <th>Percentage</th>
+                    </tr>
+                    <tr id="body_table">
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </body>
+</html>
+
